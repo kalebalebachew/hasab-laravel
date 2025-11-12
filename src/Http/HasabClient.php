@@ -13,11 +13,10 @@ class HasabClient
 
     protected function base(): PendingRequest
     {
-        $base = rtrim($this->config['base_url'], '/') . '/' . trim($this->config['version'], '/');
+        $base = rtrim($this->config['base_url'], '/');
 
         return Http::withOptions([
             'base_uri' => $base,
-            'timeout' => $this->config['timeout'] ?? 30,
         ])
         ->acceptJson()
         ->withHeaders([
