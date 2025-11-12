@@ -1,4 +1,5 @@
-# Hasab Laravel SDK
+![Hasab AI Banner](https://developer.hasab.ai/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fbanner-2.d0120f7b.png&w=1920&q=75)
+# Hasab AI Laravel SDK
 
 A simple Laravel SDK for integrating with [Hasab AI](https://developer.hasab.ai).  
 It gives you a clean way to access Hasab’s core features — transcription, translation, text-to-speech (TTS), and chat — without writing repetitive HTTP logic.
