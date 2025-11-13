@@ -50,6 +50,41 @@ HASAB_BASE_URL=https://hasab.co/api
 HASAB_API_VERSION=v1
 ```
 
+## Quick Start
+
+```php
+use Hasab\Facades\Hasab;
+
+// Chat
+$response = Hasab::chat()->complete([
+    'message' => 'Hello, how are you?',
+    'model' => 'hasab-1-lite',
+]);
+
+// Transcription (from file)
+$transcription = Hasab::transcription()->upload([
+    'file' => storage_path('app/audio/recording.mp3'),
+]);
+
+// Transcription (from URL)
+$transcription = Hasab::transcription()->upload([
+    'url' => 'https://example.com/audio.mp3',
+]);
+
+// Translation
+$translation = Hasab::translation()->translate([
+    'file' => storage_path('app/audio/speech.mp3'),
+    'source_language' => 'amh',
+    'target_language' => 'eng',
+]);
+
+// Text-to-Speech
+$audio = Hasab::tts()->synthesize([
+    'text' => 'Hello, world!',
+    'language' => 'eng',
+]);
+```
+
 ## Documentation
 
 For detailed examples and advanced usage, check out the [Usage Guide](USAGE.md).

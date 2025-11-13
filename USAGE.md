@@ -164,13 +164,17 @@ $response = Hasab::chat()->updateTitle('My Important Conversation');
 
 The Transcription Service converts audio files to text. Supported formats: MP3, WAV, M4A.
 
-### Basic Transcription
+> **Important**: The service automatically includes required fields (`key` and `is_meeting`) when you upload. You typically only need to provide the `file` or `url` parameter.
+
+### Basic Transcription (File Upload)
 
 ```php
 use Hasab\Facades\Hasab;
 
 $result = Hasab::transcription()->upload([
     'file' => storage_path('app/audio/recording.mp3'),
+    // Optional: 'key' => 'unique-audio-id',     // Auto-generated if not provided
+    // Optional: 'is_meeting' => false,           // Default: false
 ]);
 
 // Response includes:
@@ -179,17 +183,37 @@ $result = Hasab::transcription()->upload([
 // - tokens_used: Number of tokens consumed
 ```
 
+### Transcription from URL
+
+If your audio file is already hosted online, you can provide a URL instead:
+
+```php
+$result = Hasab::transcription()->upload([
+    'url' => 'https://example.com/audio/recording.mp3',
+    'key' => 'my-unique-audio-key',    // Required when using URL
+    'is_meeting' => false,              // Optional: mark as meeting recording
+]);
+```
+
 ### Transcribe with All Options
 
 ```php
 $result = Hasab::transcription()->upload([
     'file' => storage_path('app/audio/recording.wav'),
-    'transcribe' => true,              // Enable transcription (default: true)
-    'translate' => false,              // Enable translation (default: false)
-    'summarize' => false,              // Enable summarization (default: false)
-    'language' => 'auto',              // Target language (default: 'auto')
-    'source_language' => 'amh',        // Source language: 'amh', 'eng', 'orm', etc.
-    'timestamps' => false,             // Include timestamps (default: false)
+    
+    // Identification (auto-generated if not provided)
+    'key' => 'interview-2024-01-15',    // Unique identifier for this audio
+    'is_meeting' => false,               // Is this a meeting recording?
+    
+    // Processing options
+    'transcribe' => true,                // Enable transcription (default: true)
+    'translate' => false,                // Enable translation (default: false)
+    'summarize' => false,                // Enable summarization (default: false)
+    'timestamps' => false,               // Include timestamps (default: false)
+    
+    // Language settings
+    'language' => 'auto',                // Target language (default: 'auto')
+    'source_language' => 'amh',          // Source language: 'amh', 'eng', 'orm', etc.
 ]);
 
 // Response structure:
@@ -238,6 +262,7 @@ $translatedText = $result['translation'];
 ```php
 $result = Hasab::transcription()->upload([
     'file' => storage_path('app/audio/meeting.mp3'),
+    'key' => 'meeting-jan-2024',        // Optional unique identifier
     'transcribe' => true,
     'summarize' => true,
     'language' => 'auto',
@@ -245,6 +270,7 @@ $result = Hasab::transcription()->upload([
 
 // Access the summary
 $summary = $result['summary'];
+$fullTranscript = $result['transcription'];
 ```
 
 ### Transcribe with Timestamps
@@ -267,6 +293,25 @@ foreach ($result['timestamp'] as $segment) {
 // [1.6s - 3.36s]: እንደምታዩት በፊት ከነበረው ከለር
 ```
 
+### Transcribe Meeting Recordings
+
+Mark audio files as meeting recordings for better processing:
+
+```php
+$result = Hasab::transcription()->upload([
+    'file' => storage_path('app/meetings/team-standup.mp3'),
+    'key' => 'standup-2024-01-15',
+    'is_meeting' => true,               // Mark as meeting recording
+    'transcribe' => true,
+    'summarize' => true,                // Get meeting summary
+    'timestamps' => true,               // Track who spoke when
+]);
+
+// Access meeting-specific data
+$summary = $result['summary'];
+$transcript = $result['transcription'];
+```
+
 ### Get Transcription History
 
 ```php
@@ -287,6 +332,41 @@ $page2 = Hasab::transcription()->history(page: 2);
 //         'last_page' => 30,
 //         ...
 //     ]
+// ]
+```
+
+### Get Specific Transcription
+
+Retrieve a previously processed transcription by its ID:
+
+```php
+$audio = Hasab::transcription()->get(8769);
+
+// Returns:
+// [
+//     'id' => 8769,
+//     'filename' => 'recording.mp3',
+//     'transcription' => 'Full transcribed text...',
+//     'translation' => '...',
+//     'summary' => '...',
+//     'duration_in_seconds' => 23.98,
+//     'audio_url' => 'https://hasab.s3.amazonaws.com/...',
+//     'created_at' => '2024-01-15T10:30:00Z',
+//     ...
+// ]
+```
+
+### Delete Transcription
+
+Remove a transcription from your history:
+
+```php
+$result = Hasab::transcription()->delete(8769);
+
+// Returns:
+// [
+//     'success' => true,
+//     'message' => 'Audio file deleted successfully'
 // ]
 ```
 
