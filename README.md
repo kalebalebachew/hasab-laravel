@@ -61,23 +61,6 @@ $response = Hasab::chat()->complete([
     'model' => 'hasab-1-lite',
 ]);
 
-// Transcription (from file)
-$transcription = Hasab::transcription()->upload([
-    'file' => storage_path('app/audio/recording.mp3'),
-]);
-
-// Transcription (from URL)
-$transcription = Hasab::transcription()->upload([
-    'url' => 'https://example.com/audio.mp3',
-]);
-
-// Translation
-$translation = Hasab::translation()->translate([
-    'file' => storage_path('app/audio/speech.mp3'),
-    'source_language' => 'amh',
-    'target_language' => 'eng',
-]);
-
 // Text-to-Speech
 $audio = Hasab::tts()->synthesize([
     'text' => 'Hello, world!',
