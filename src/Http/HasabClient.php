@@ -93,4 +93,13 @@ class HasabClient
             ->throw()
             ->json();
     }
+
+    public function postMultipartForm(string $uri, array $multipartData): array
+    {
+        return $this->base()
+            ->asMultipart()
+            ->post($uri, $multipartData)
+            ->throw()
+            ->json();
+    }
 }

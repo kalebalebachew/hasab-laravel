@@ -25,32 +25,32 @@ class TranscriptionService
      * @param array $options Available options:
      *   - file (string|required): Path to the audio file
      *   - url (string|optional): URL to the audio file (alternative to file)
-     *   - key (string|optional): Unique identifier for the audio
-     *   - is_meeting (bool|optional): Whether this is a meeting recording
-     *   - transcribe (bool): Enable transcription (default: true)
+     *   - is_meeting (bool|optional): Whether this is a meeting recording (default: false)
      *   - translate (bool): Enable translation (default: false)
      *   - summarize (bool): Enable summarization (default: false)
-     *   - language (string): Target language (default: 'auto')
-     *   - source_language (string): Source language code (amh, eng, orm, etc.)
-     *   - timestamps (bool): Include word-level timestamps (default: false)
+     *   - language (string): Language code (eng, amh, orm, etc.)
      * 
-     * @return array
+     * @return array Response includes:
+     *   - success: Operation success status
+     *   - message: Success/error message
+     *   - audio: File metadata including id, filename, duration, etc.
+     *   - transcription: The transcribed text
+     *   - translation: Translated text (if translate=true)
+     *   - summary: Summary text (if summarize=true)
+     *   - metadata: Usage information (tokens_charged, remaining_tokens)
+     * 
      * @throws InvalidArgumentException
      */
     public function upload(array $options): array
     {
         $data = [
-            'key' => $options['key'] ?? uniqid('audio_', true),
             'is_meeting' => $options['is_meeting'] ?? false,
-            'transcribe' => $options['transcribe'] ?? true,
             'translate' => $options['translate'] ?? false,
             'summarize' => $options['summarize'] ?? false,
-            'language' => $options['language'] ?? 'auto',
-            'timestamps' => $options['timestamps'] ?? false,
         ];
 
-        if (isset($options['source_language'])) {
-            $data['source_language'] = $options['source_language'];
+        if (isset($options['language'])) {
+            $data['language'] = $options['language'];
         }
 
         if (isset($options['url'])) {
@@ -58,7 +58,6 @@ class TranscriptionService
             return $this->http->post('upload-audio', $data);
         }
 
-        // Check if file path is provi  ded (file upload)
         if (isset($options['file'])) {
             $file = $options['file'];
             
@@ -67,7 +66,7 @@ class TranscriptionService
             }
 
             return $this->http->postMultipart('upload-audio', [
-                'file' => $file,
+                'audio' => $file,
             ], $data);
         }
 

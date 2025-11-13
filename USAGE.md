@@ -376,39 +376,84 @@ $result = Hasab::transcription()->delete(8769);
 
 > **⚠️ ONGOING IMPLEMENTATION**: This feature is currently under active development. The API interface may change in future releases.
 
-The Translation Service provides audio-to-text translation. It automatically transcribes and translates audio in one step.
+The Translation Service provides text-to-text translation between supported languages.
 
-### Translate Audio File
+### Translate a Single Text
 
 ```php
 use Hasab\Facades\Hasab;
 
-// Basic translation
-$result = Hasab::translation()->upload([
-    'file' => storage_path('app/audio/speech.mp3'),
-    'source_language' => 'amh',        // Source language (Amharic)
-    'language' => 'eng',               // Target language (English)
+// Translate a single text
+$result = Hasab::translation()->translate([
+    'text' => 'Hello, how are you?',
+    'source_language' => 'eng',        // Source: English
+    'target_language' => 'amh',        // Target: Amharic
 ]);
 
 // Access the translated text
-$translatedText = $result['translation'];
+$translatedText = $result['translated_text'];
 ```
 
-### Translate with Additional Options
+### Translate Multiple Texts
+
+The translation API supports batch translation of multiple texts at once:
 
 ```php
-$result = Hasab::translation()->upload([
-    'file' => storage_path('app/audio/speech.mp3'),
-    'source_language' => 'amh',
-    'language' => 'eng',
-    'summarize' => true,               // Also generate a summary
-    'timestamps' => true,              // Include timestamps
+$result = Hasab::translation()->translate([
+    'text' => [
+        'Hello, how are you?',
+        'What\'s your name?',
+        'Nice to meet you',
+        'Have a great day!',
+    ],
+    'source_language' => 'eng',
+    'target_language' => 'orm',        // Afaan Oromo
 ]);
 
-// Access results
-$translation = $result['translation'];
-$summary = $result['summary'];
-$timestamps = $result['timestamp'];
+// Access the translated texts (array)
+$translations = $result['translations'];
+
+// Process each translation
+foreach ($translations as $index => $translation) {
+    echo "Original: {$result['original'][$index]}\n";
+    echo "Translation: {$translation}\n\n";
+}
+```
+
+### Supported Languages
+
+Common language codes:
+
+- `eng` - English
+- `amh` - Amharic (አማርኛ)
+- `orm` - Afaan Oromo
+- `tir` - Tigrinya
+- `som` - Somali
+
+### Translation Example (English to Amharic)
+
+```php
+$result = Hasab::translation()->translate([
+    'text' => 'Welcome to Hasab AI. We provide powerful AI tools.',
+    'source_language' => 'eng',
+    'target_language' => 'amh',
+]);
+
+echo $result['translated_text'];
+// Output: እንኳን ወደ ሃሳብ AI በደህና መጡ። ኃይለኛ የ AI መሣሪያዎችን እናቀርባለን።
+```
+
+### Translation Example (Amharic to English)
+
+```php
+$result = Hasab::translation()->translate([
+    'text' => 'ጤና ይስጥልኝ። ስምህ ማን ይባላል?',
+    'source_language' => 'amh',
+    'target_language' => 'eng',
+]);
+
+echo $result['translated_text'];
+// Output: Hello. What is your name?
 ```
 
 ### Get Translation History

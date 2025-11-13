@@ -74,9 +74,9 @@ $transcription = Hasab::transcription()->upload([
 
 // Translation (⚠️ Ongoing Implementation)
 $translation = Hasab::translation()->translate([
-    'file' => storage_path('app/audio/speech.mp3'),
-    'source_language' => 'amh',
-    'target_language' => 'eng',
+    'text' => 'Hello, how are you?',
+    'source_language' => 'eng',
+    'target_language' => 'amh',
 ]);
 ```
 
