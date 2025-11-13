@@ -66,6 +66,18 @@ $audio = Hasab::tts()->synthesize([
     'text' => 'Hello, world!',
     'language' => 'eng',
 ]);
+
+// Transcription (⚠️ Ongoing Implementation)
+$transcription = Hasab::transcription()->upload([
+    'file' => storage_path('app/audio/recording.mp3'),
+]);
+
+// Translation (⚠️ Ongoing Implementation)
+$translation = Hasab::translation()->translate([
+    'file' => storage_path('app/audio/speech.mp3'),
+    'source_language' => 'amh',
+    'target_language' => 'eng',
+]);
 ```
 
 ## Documentation

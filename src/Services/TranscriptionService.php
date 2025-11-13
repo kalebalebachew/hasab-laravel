@@ -5,6 +5,16 @@ namespace Hasab\Services;
 use Hasab\Http\HasabClient;
 use InvalidArgumentException;
 
+/**
+ * Transcription Service
+ * 
+ * ⚠️ ONGOING IMPLEMENTATION
+ * This service is currently under active development.
+ * The API interface may change in future releases.
+ * 
+ * Converts audio files to text with optional translation and summarization.
+ * Supported formats: MP3, WAV, M4A
+ */
 class TranscriptionService
 {
     public function __construct(protected HasabClient $http) {}

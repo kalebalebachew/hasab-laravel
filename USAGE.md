@@ -8,8 +8,8 @@ This guide provides comprehensive examples for using the Hasab AI Laravel SDK in
 - [Configuration](#configuration)
 - [Usage Patterns](#usage-patterns)
 - [Chat Service](#chat-service)
-- [Transcription Service](#transcription-service)
-- [Translation Service](#translation-service)
+- [Transcription Service](#transcription-service) ⚠️ _Ongoing Implementation_
+- [Translation Service](#translation-service) ⚠️ _Ongoing Implementation_
 - [Text-to-Speech (TTS) Service](#text-to-speech-tts-service)
 - [Error Handling](#error-handling)
 
@@ -162,6 +162,8 @@ $response = Hasab::chat()->updateTitle('My Important Conversation');
 
 ## Transcription Service
 
+> **⚠️ ONGOING IMPLEMENTATION**: This feature is currently under active development. The API interface may change in future releases.
+
 The Transcription Service converts audio files to text. Supported formats: MP3, WAV, M4A.
 
 > **Important**: The service automatically includes required fields (`key` and `is_meeting`) when you upload. You typically only need to provide the `file` or `url` parameter.
@@ -200,17 +202,17 @@ $result = Hasab::transcription()->upload([
 ```php
 $result = Hasab::transcription()->upload([
     'file' => storage_path('app/audio/recording.wav'),
-    
+
     // Identification (auto-generated if not provided)
     'key' => 'interview-2024-01-15',    // Unique identifier for this audio
     'is_meeting' => false,               // Is this a meeting recording?
-    
+
     // Processing options
     'transcribe' => true,                // Enable transcription (default: true)
     'translate' => false,                // Enable translation (default: false)
     'summarize' => false,                // Enable summarization (default: false)
     'timestamps' => false,               // Include timestamps (default: false)
-    
+
     // Language settings
     'language' => 'auto',                // Target language (default: 'auto')
     'source_language' => 'amh',          // Source language: 'amh', 'eng', 'orm', etc.
@@ -371,6 +373,8 @@ $result = Hasab::transcription()->delete(8769);
 ```
 
 ## Translation Service
+
+> **⚠️ ONGOING IMPLEMENTATION**: This feature is currently under active development. The API interface may change in future releases.
 
 The Translation Service provides audio-to-text translation. It automatically transcribes and translates audio in one step.
 

@@ -4,6 +4,15 @@ namespace Hasab\Services;
 
 use Hasab\Http\HasabClient;
 
+/**
+ * Translation Service
+ * 
+ * ⚠️ ONGOING IMPLEMENTATION
+ * This service is currently under active development.
+ * The API interface may change in future releases.
+ * 
+ * Provides audio-to-text translation by automatically transcribing and translating audio in one step.
+ */
 class TranslationService
 {
     public function __construct(protected HasabClient $http) {}
