@@ -13,7 +13,7 @@ class HasabClient
 
     protected function base(): PendingRequest
     {
-        $base = rtrim($this->config['base_url'], '/');
+        $base = rtrim($this->config['base_url'], '/') . '/';
 
         return Http::withOptions([
             'base_uri' => $base,

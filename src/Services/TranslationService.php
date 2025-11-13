@@ -17,6 +17,6 @@ class TranslationService
 
     public function history(int $page = 1): array
     {
-        return $this->http->get('/translations', ['page' => $page]);
+        return $this->http->get('translations', ['page' => $page]);
     }
 }

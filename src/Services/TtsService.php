@@ -10,7 +10,7 @@ class TtsService
 
     public function synthesize(string $text, string $language, ?string $speaker = null): array
     {
-        return $this->http->postJson('/tts/synthesize', [
+        return $this->http->postJson('tts/synthesize', [
             'text' => $text,
             'language' => $language,
             'speaker_name' => $speaker,
@@ -19,16 +19,16 @@ class TtsService
 
     public function speakers(?string $language = null): array
     {
-        return $this->http->get('/tts/speakers', array_filter(['language' => $language]));
+        return $this->http->get('tts/speakers', array_filter(['language' => $language]));
     }
 
     public function history(): array
     {
-        return $this->http->get('/tts/history');
+        return $this->http->get('tts/history');
     }
 
     public function delete(int|string $id): array
     {
-        return $this->http->delete("/tts/record/{$id}");
+        return $this->http->delete("tts/record/{$id}");
     }
 }

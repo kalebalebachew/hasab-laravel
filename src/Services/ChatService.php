@@ -11,7 +11,7 @@ class ChatService
     public function complete(array $params): array
     {
         if (isset($params['image'])) {
-            return $this->http->postMultipart('/chat', [
+            return $this->http->postMultipart('chat', [
                 'image' => $params['image'],
             ], [
                 'message' => $params['message'] ?? '',
@@ -19,26 +19,26 @@ class ChatService
             ]);
         }
 
-        return $this->http->postJson('/chat', $params);
+        return $this->http->postJson('chat', $params);
     }
 
     public function history(): array
     {
-        return $this->http->get('/chat/history');
+        return $this->http->get('chat/history');
     }
 
     public function clear(): array
     {
-        return $this->http->postJson('/chat/clear');
+        return $this->http->postJson('chat/clear');
     }
 
     public function title(): array
     {
-        return $this->http->get('/chat/title');
+        return $this->http->get('chat/title');
     }
 
     public function updateTitle(string $title): array
     {
-        return $this->http->postJson('/chat/title', ['title' => $title]);
+        return $this->http->postJson('chat/title', ['title' => $title]);
     }
 }

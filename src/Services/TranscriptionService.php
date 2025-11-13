@@ -12,7 +12,7 @@ class TranscriptionService
     {
         $file = $options['file'];
 
-        return $this->http->postMultipart('/upload-audio', [
+        return $this->http->postMultipart('upload-audio', [
             'file' => $file,
         ], [
             'transcribe' => $options['transcribe'] ?? true,
@@ -25,6 +25,6 @@ class TranscriptionService
 
     public function history(int $page = 1): array
     {
-        return $this->http->get('/audios', ['page' => $page]);
+        return $this->http->get('audios', ['page' => $page]);
     }
 }
