@@ -10,17 +10,31 @@ class TranscriptionService
 
     public function upload(array $options): array
     {
-        $file = $options['file'];
+        if (isset($options['file'])) {
+            return $this->http->postMultipart('upload-audio', [
+                'file' => $options['file'],
+            ], array_filter([
+                'url' => $options['url'] ?? null,
+                'key' => $options['key'] ?? null,
+                'is_meeting' => $options['is_meeting'] ?? false,
+                'transcribe' => $options['transcribe'] ?? true,
+                'translate' => $options['translate'] ?? false,
+                'summarize' => $options['summarize'] ?? false,
+                'language' => $options['language'] ?? 'auto',
+                'source_language' => $options['source_language'] ?? null,
+            ], fn($value) => $value !== null));
+        }
 
-        return $this->http->postMultipart('upload-audio', [
-            'file' => $file,
-        ], [
+        return $this->http->postJson('upload-audio', array_filter([
+            'url' => $options['url'] ?? null,
+            'key' => $options['key'] ?? null,
+            'is_meeting' => $options['is_meeting'] ?? false,
             'transcribe' => $options['transcribe'] ?? true,
             'translate' => $options['translate'] ?? false,
             'summarize' => $options['summarize'] ?? false,
             'language' => $options['language'] ?? 'auto',
             'source_language' => $options['source_language'] ?? null,
-        ]);
+        ], fn($value) => $value !== null));
     }
 
     public function history(int $page = 1): array
