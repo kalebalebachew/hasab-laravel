@@ -42,11 +42,27 @@ class HasabClient
 
     public function postJson(string $uri, array $data = []): array
     {
-        return $this->base()
+        $response = $this->base()
             ->asJson()
             ->post($uri, $data)
-            ->throw()
-            ->json();
+            ->throw();
+        
+        // Check content type
+        $contentType = $response->header('Content-Type');
+        
+        // If response is not JSON (e.g., audio/binary), return metadata
+        if ($contentType && !str_contains($contentType, 'json')) {
+            return [
+                'content_type' => $contentType,
+                'body' => base64_encode($response->body()),
+                'size' => strlen($response->body()),
+                'headers' => $response->headers(),
+            ];
+        }
+            
+        // Try to parse as JSON
+        $json = $response->json();
+        return is_array($json) ? $json : [];
     }
 
     public function postMultipart(string $uri, array $files = [], array $data = []): array
