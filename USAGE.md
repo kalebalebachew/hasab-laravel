@@ -33,7 +33,7 @@ Add your Hasab AI API credentials to your `.env` file:
 
 ```env
 HASAB_API_KEY=your-api-key-here
-HASAB_BASE_URL=https://api.hasab.co/api
+HASAB_BASE_URL=https://hasab.co/api
 HASAB_API_VERSION=v1
 ```
 
@@ -42,7 +42,7 @@ The configuration file (`config/hasab.php`) will be published to your applicatio
 ```php
 return [
     'key' => env('HASAB_API_KEY', ''),
-    'base_url' => env('HASAB_BASE_URL', 'https://api.hasab.co/api'),
+    'base_url' => env('HASAB_BASE_URL', 'https://hasab.co/api'),
     'version' => env('HASAB_API_VERSION', 'v1'),
 ];
 ```
@@ -160,25 +160,62 @@ $response = Hasab::chat()->updateTitle('My Important Conversation');
 // Sets a custom title for the chat session
 ```
 
-
 ## Transcription Service
 
-The Transcription Service converts audio files to text.
+The Transcription Service converts audio files to text. Supported formats: MP3, WAV, M4A.
 
-### Transcribe Audio File
+### Basic Transcription
 
 ```php
 use Hasab\Facades\Hasab;
 
 $result = Hasab::transcription()->upload([
     'file' => storage_path('app/audio/recording.mp3'),
-    'transcribe' => true,
-    'translate' => false,
-    'summarize' => false,
-    'language' => 'auto', // or specific language code like 'en', 'am', etc.
 ]);
 
-// Response includes transcription text and metadata
+// Response includes:
+// - transcription: The transcribed text
+// - audio: Audio file details and metadata
+// - tokens_used: Number of tokens consumed
+```
+
+### Transcribe with All Options
+
+```php
+$result = Hasab::transcription()->upload([
+    'file' => storage_path('app/audio/recording.wav'),
+    'transcribe' => true,              // Enable transcription (default: true)
+    'translate' => false,              // Enable translation (default: false)
+    'summarize' => false,              // Enable summarization (default: false)
+    'language' => 'auto',              // Target language (default: 'auto')
+    'source_language' => 'amh',        // Source language: 'amh', 'eng', 'orm', etc.
+    'timestamps' => false,             // Include timestamps (default: false)
+]);
+
+// Response structure:
+// [
+//     'success' => true,
+//     'message' => 'Audio uploaded and processed successfully',
+//     'audio' => [
+//         'id' => 8769,
+//         'filename' => 'audio.mp3',
+//         'transcription' => 'The transcribed text...',
+//         'translation' => '',
+//         'summary' => '',
+//         'duration_in_seconds' => 23.98,
+//         'audio_url' => 'https://hasab.s3.amazonaws.com/...',
+//         ...
+//     ],
+//     'transcription' => 'The transcribed text...',
+//     'timestamp' => [...], // If timestamps: true
+//     'translation' => '',
+//     'summary' => '',
+//     'metadata' => [
+//         'tokens_charged' => 6,
+//         'remaining_tokens' => 150,
+//         'charge_message' => 'Tokens charged successfully'
+//     ]
+// ]
 ```
 
 ### Transcribe with Translation
@@ -188,9 +225,12 @@ $result = Hasab::transcription()->upload([
     'file' => storage_path('app/audio/speech.mp3'),
     'transcribe' => true,
     'translate' => true,
-    'language' => 'am', // Amharic
-    'source_language' => 'am', // Optional: specify source language
+    'source_language' => 'amh',        // Amharic audio
+    'language' => 'eng',               // Translate to English
 ]);
+
+// Access the translation
+$translatedText = $result['translation'];
 ```
 
 ### Transcribe with Summarization
@@ -200,8 +240,31 @@ $result = Hasab::transcription()->upload([
     'file' => storage_path('app/audio/meeting.mp3'),
     'transcribe' => true,
     'summarize' => true,
-    'language' => 'en',
+    'language' => 'auto',
 ]);
+
+// Access the summary
+$summary = $result['summary'];
+```
+
+### Transcribe with Timestamps
+
+```php
+$result = Hasab::transcription()->upload([
+    'file' => storage_path('app/audio/interview.wav'),
+    'transcribe' => true,
+    'timestamps' => true,              // Get word-level timestamps
+    'source_language' => 'eng',
+]);
+
+// Access timestamps
+foreach ($result['timestamp'] as $segment) {
+    echo "[$segment[start]s - $segment[end]s]: $segment[content]\n";
+}
+
+// Output example:
+// [0s - 1.52s]: የፋሲልለደስ ቤተመንግስት እዚህ ጋር
+// [1.6s - 3.36s]: እንደምታዩት በፊት ከነበረው ከለር
 ```
 
 ### Get Transcription History
@@ -212,34 +275,67 @@ $transcriptions = Hasab::transcription()->history();
 
 // Get specific page
 $page2 = Hasab::transcription()->history(page: 2);
-```
 
+// Response structure:
+// [
+//     'status' => 'success',
+//     'data' => [
+//         'current_page' => 1,
+//         'data' => [...], // Array of transcription records
+//         'total' => 439,
+//         'per_page' => 15,
+//         'last_page' => 30,
+//         ...
+//     ]
+// ]
+```
 
 ## Translation Service
 
-The Translation Service provides audio translation capabilities.
+The Translation Service provides audio-to-text translation. It automatically transcribes and translates audio in one step.
 
 ### Translate Audio File
 
 ```php
 use Hasab\Facades\Hasab;
 
+// Basic translation
 $result = Hasab::translation()->upload([
     'file' => storage_path('app/audio/speech.mp3'),
-    'language' => 'am', // Target language
-    'source_language' => 'en', // Optional: source language
+    'source_language' => 'amh',        // Source language (Amharic)
+    'language' => 'eng',               // Target language (English)
 ]);
+
+// Access the translated text
+$translatedText = $result['translation'];
+```
+
+### Translate with Additional Options
+
+```php
+$result = Hasab::translation()->upload([
+    'file' => storage_path('app/audio/speech.mp3'),
+    'source_language' => 'amh',
+    'language' => 'eng',
+    'summarize' => true,               // Also generate a summary
+    'timestamps' => true,              // Include timestamps
+]);
+
+// Access results
+$translation = $result['translation'];
+$summary = $result['summary'];
+$timestamps = $result['timestamp'];
 ```
 
 ### Get Translation History
 
 ```php
+// Get first page
 $translations = Hasab::translation()->history();
 
 // With pagination
 $page2 = Hasab::translation()->history(page: 2);
 ```
-
 
 ## Text-to-Speech (TTS) Service
 
@@ -284,7 +380,6 @@ $result = Hasab::tts()->delete(id: 123);
 
 // Deletes a specific TTS recording by ID
 ```
-
 
 ## Error Handling
 
@@ -399,14 +494,21 @@ class ProcessAudioTranscription implements ShouldQueue
                 'transcribe' => true,
                 'summarize' => true,
                 'language' => 'auto',
+                'timestamps' => true,
             ]);
 
             // Store results in database
             \App\Models\Transcription::create([
                 'user_id' => $this->userId,
+                'hasab_audio_id' => $result['audio']['id'],
                 'file_path' => $this->filePath,
-                'text' => $result['text'] ?? '',
+                'filename' => $result['audio']['filename'],
+                'transcription' => $result['transcription'] ?? '',
                 'summary' => $result['summary'] ?? '',
+                'duration' => $result['audio']['duration_in_seconds'],
+                'audio_url' => $result['audio']['audio_url'],
+                'timestamps' => json_encode($result['timestamp'] ?? []),
+                'tokens_used' => $result['metadata']['tokens_charged'],
                 'status' => 'completed',
             ]);
 
@@ -422,6 +524,26 @@ class ProcessAudioTranscription implements ShouldQueue
 }
 ```
 
+## API Parameters Reference
+
+### Transcription/Translation Parameters
+
+| Parameter         | Type    | Required | Default  | Description                                 |
+| ----------------- | ------- | -------- | -------- | ------------------------------------------- |
+| `file`            | string  | Yes      | -        | Path to audio file (MP3, WAV, M4A)          |
+| `transcribe`      | boolean | No       | `true`   | Enable transcription                        |
+| `translate`       | boolean | No       | `false`  | Enable translation                          |
+| `summarize`       | boolean | No       | `false`  | Generate summary                            |
+| `language`        | string  | No       | `'auto'` | Target language for output                  |
+| `source_language` | string  | No       | `null`   | Source audio language (`amh`, `eng`, `orm`) |
+| `timestamps`      | boolean | No       | `false`  | Include word-level timestamps               |
+
+### Supported Languages
+
+- `amh` - Amharic (አማርኛ)
+- `eng` - English
+- `orm` - Oromo (Afaan Oromoo)
+- `auto` - Auto-detect (for transcription)
 
 ## Tips & Best Practices
 
@@ -429,7 +551,10 @@ class ProcessAudioTranscription implements ShouldQueue
 2. **Use Queues**: Process long-running operations (transcription, translation) in background jobs
 3. **Cache Results**: Cache frequently accessed data like TTS speakers list
 4. **Error Handling**: Always implement proper error handling and user feedback
-5. **File Validation**: Validate file types and sizes before uploading
+5. **File Validation**: Validate file types (MP3, WAV, M4A) and sizes before uploading
+6. **Timestamps**: Enable `timestamps: true` only when needed as it increases processing time
+7. **Source Language**: Specify `source_language` for better accuracy when the language is known
+8. **Monitor Token Usage**: Check `metadata.remaining_tokens` in responses to track your usage
 
 ---
 
@@ -439,4 +564,3 @@ For issues, questions, or contributions, please visit:
 
 - GitHub: [kalebalebachew/hasab-laravel](https://github.com/kalebalebachew/hasab-laravel)
 - Email: kalebalebachew4@gmail.com
-

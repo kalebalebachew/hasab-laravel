@@ -42,9 +42,9 @@ You can publish the config file (optional):
 php artisan vendor:publish --tag=hasab-config
 ```
 
-Then add these to your .env:
+Then add these to your `.env`:
 
-```bash
+```env
 HASAB_API_KEY=your_api_key_here
 HASAB_BASE_URL=https://hasab.co/api
 HASAB_API_VERSION=v1
